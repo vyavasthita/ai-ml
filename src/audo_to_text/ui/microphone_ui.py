@@ -78,9 +78,31 @@ class MicrophoneTranscribeUI:
                 path.unlink(missing_ok=True)
 
     def render_transcription(self, lang: str, text: str):
-        """Render transcription results in UI."""
+        """Render transcription results in UI with save & download."""
         st.success(f"Detected language: {lang if lang else 'unknown'}")
         st.text_area("Microphone Transcription", value=text, height=180)
+        self.persist_last_transcript(text)
+        file_path = self.write_transcription_to_file(text)
+        self.download_button(text, file_path)
+
+    def persist_last_transcript(self, text: str):
+        st.session_state["last_mic_transcript"] = text
+
+    def write_transcription_to_file(self, text: str):
+        out_dir = Path("transcriptions")
+        out_dir.mkdir(exist_ok=True)
+        file_path = out_dir / "microphone_transcription.txt"
+        file_path.write_text(text, encoding="utf-8")
+        return file_path
+
+    def download_button(self, text: str, file_path: Path):
+        st.download_button(
+            label="Download Transcription",
+            data=text,
+            file_name=file_path.name,
+            mime="text/plain",
+            help="Save the transcription locally"
+        )
 
     def display(self):
         st.subheader("Microphone Speech Recognition")
