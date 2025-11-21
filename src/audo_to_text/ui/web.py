@@ -17,6 +17,10 @@ class TranscribeUI:
 		st.set_page_config(page_title="Transcribe", layout="centered")
 		st.title("Minimal Audio Transcription UI")
 		st.caption("Prototype: upload a file and transcribe. Microphone support coming later.")
+		
+		# Load the tiny model once and cache in session state at UI load
+		if "whisper_model" not in st.session_state:
+			st.session_state["whisper_model"] = ModelLoader("tiny").load()
 
 	def model_selector(self):
 		"""Model selection dropdown."""
@@ -30,34 +34,53 @@ class TranscribeUI:
 		"""Transcribe button widget."""
 		return st.button("Transcribe")
 
-	def transcribe_file(self, uploaded, model_name):
+	def transcribe_file(self, uploaded):
 		"""
-		Handle file upload, model loading, transcription, and result display.
+		Orchestrate file upload, transcription, and result display using cached tiny model.
 		Args:
 			uploaded: Uploaded file object from Streamlit
-			model_name: Selected Whisper model name
 		"""
 		if not uploaded:
 			st.warning("Please upload an audio file first.")
 			return
 
-		# Save uploaded file to a temporary path for whisper.load_audio
+		tmp_path = self.save_uploaded_file(uploaded)
+		try:
+			lang, text = self.run_transcription(tmp_path)
+			self.display_transcription(lang, text)
+		finally:
+			self.cleanup_temp_file(tmp_path)
+
+	def save_uploaded_file(self, uploaded):
+		"""Save uploaded file to a temporary path for whisper.load_audio."""
 		suffix = Path(uploaded.name).suffix or ".wav"
+		
 		with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
 			tmp.write(uploaded.read())
 			tmp_path = Path(tmp.name)
+			
+		return tmp_path
 
-		try:
-			# Load model (could cache in st.session_state for performance)
-			model = ModelLoader(model_name).load()
-			transcriber = AudioFileTranscriber(audio_path=tmp_path, model=model)
-			lang, text = transcriber.transcribe()
-			st.success(f"Detected language: {lang}")
-			st.text_area("Transcription", value=text, height=180)
-		finally:
-			# Clean up temp file
-			if tmp_path.exists():
-				tmp_path.unlink(missing_ok=True)
+	def run_transcription(self, tmp_path):
+		"""Run transcription using cached tiny model."""
+		if "whisper_model" not in st.session_state:
+			st.session_state["whisper_model"] = ModelLoader("tiny").load()
+			
+		model = st.session_state["whisper_model"]
+		transcriber = AudioFileTranscriber(audio_path=tmp_path, model=model)
+		
+		lang, text = transcriber.transcribe()
+		return lang, text
+
+	def display_transcription(self, lang, text):
+		"""Display detected language and transcription result."""
+		st.success(f"Detected language: {lang}")
+		st.text_area("Transcription", value=text, height=180)
+
+	def cleanup_temp_file(self, tmp_path):
+		"""Remove temporary file after transcription."""
+		if tmp_path.exists():
+			tmp_path.unlink(missing_ok=True)
 
 	def microphone_placeholder(self):
 		"""Display placeholder for future microphone input integration."""
@@ -72,17 +95,15 @@ class TranscribeUI:
 
 	def run(self):
 		"""Main UI runner."""
-		model_name = self.model_selector()
 		uploaded = self.file_uploader()
 		transcribe_btn = self.transcribe_button()
 		
 		if transcribe_btn:
-			self.transcribe_file(uploaded, model_name)
+			self.transcribe_file(uploaded)
 			
 		self.microphone_placeholder()
 		self.footer()
 
 
 if __name__ == "__main__":
-	# For Streamlit, this block is not used, but allows local testing
-	TranscribeUI().run()
+    TranscribeUI().run()
