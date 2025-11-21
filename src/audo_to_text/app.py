@@ -1,20 +1,36 @@
 import whisper
-model = whisper.load_model("tiny")
 
-# load audio and pad/trim it to fit 30 seconds
-audio = whisper.load_audio("./src/audo_to_text/sample_files/first.wav")
-audio = whisper.pad_or_trim(audio)
+AUDIO_PATH = "./src/audo_to_text/sample_files/first.wav"
+MODEL_NAME = "tiny"
 
-# make log-Mel spectrogram and move to the same device as the model
-mel = whisper.log_mel_spectrogram(audio).to(model.device)
+def load_model(name: str):
+    return whisper.load_model(name)
 
-# detect the spoken language
-_, probs = model.detect_language(mel)
-print(f"Detected language: {max(probs, key=probs.get)}")
+def load_and_prepare_audio(path: str, model):
+    audio = whisper.load_audio(path)
+    audio = whisper.pad_or_trim(audio)
+    mel = whisper.log_mel_spectrogram(audio).to(model.device)
+    return audio, mel
 
-# decode the audio
-options = whisper.DecodingOptions()
-result = whisper.decode(model, mel, options)
+def detect_language(mel, model):
+    _, probs = model.detect_language(mel)
+    lang = max(probs, key=probs.get)
+    return lang, probs
 
-# print the recognized text
-print(result.text)
+def decode_audio(mel, model):
+    options = whisper.DecodingOptions()
+    result = whisper.decode(model, mel, options)
+    return result.text
+
+def main():
+    model = load_model(MODEL_NAME)
+    _, mel = load_and_prepare_audio(AUDIO_PATH, model)
+    lang, _ = detect_language(mel, model)
+    print(f"Detected language: {lang}")
+    print(f"Detected Text:")
+    text = decode_audio(mel, model)
+    print(text)
+
+
+if __name__ == "__main__":
+    main()
