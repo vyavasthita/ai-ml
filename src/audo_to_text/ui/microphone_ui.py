@@ -1,25 +1,35 @@
 import tempfile
 from pathlib import Path
 import streamlit as st
+from .export_ui import export_buttons, download_button
 from src.audo_to_text.services.model_loader import ModelLoader
 from src.audo_to_text.services.audio_transcriber import AudioFileTranscriber
 from src.audo_to_text.services.speech_transcriber import SpeechTranscriber
-from src.audo_to_text.ui.download_ui import download_button
 
 
 class MicrophoneTranscribeUI:
-    """Handles microphone input (single-shot recording and future streaming)."""
+    """
+    Handles microphone input (single-shot recording and future streaming).
+    - Loads Whisper and speech transcriber models
+    - Records and saves audio clips
+    - Runs transcription
+    - Persists and writes transcript
+    - Offers download/export options
+    """
 
     def __init__(self):
+        # Load models if not already in session
         if "speech_transcriber" not in st.session_state:
             st.session_state["speech_transcriber"] = SpeechTranscriber(model_name="tiny")
         if "whisper_model" not in st.session_state:
             st.session_state["whisper_model"] = ModelLoader("tiny").load()
 
     def audio_recorder(self):
+        """Show microphone audio recorder widget."""
         return st.audio_input("Record speech")
 
     def save_clip(self, clip):
+        """Save recorded audio clip to temp path."""
         if not clip:
             return None
         suffix = self.determine_suffix(clip)
@@ -43,6 +53,7 @@ class MicrophoneTranscribeUI:
             return Path(tmp.name)
 
     def transcribe_clip(self, path: Path):
+        """Run Whisper transcription on saved clip."""
         if not path:
             return None, ""
         
@@ -52,6 +63,7 @@ class MicrophoneTranscribeUI:
         return lang, text
 
     def display_single_shot(self):
+        """Main display logic for microphone tab."""
         clip = self.audio_recorder()
         if not clip:
             st.info("Press 'Record speech' to capture audio.")
@@ -62,34 +74,39 @@ class MicrophoneTranscribeUI:
                 self.process_clip(clip)
 
     def transcribe_action(self) -> bool:
-        """Render and return state of transcribe button."""
+        """Show transcribe button widget."""
         return st.button("Transcribe Recording", key="mic_transcribe_btn")
 
     def process_clip(self, clip):
-        """Handle clip saving, transcription, display, and cleanup."""
+        """Handle clip saving, transcription, and render results."""
         path = self.save_clip(clip)
         if not path:
             st.error("Failed to save recording.")
             return
         try:
             lang, text = self.transcribe_clip(path)
-            self.render_transcription(lang, text)
+            self.render_transcription(lang, text, audio_path=path)
         finally:
             if path.exists():
                 path.unlink(missing_ok=True)
 
-    def render_transcription(self, lang: str, text: str):
-        """Render transcription results in UI with save & download."""
+    def render_transcription(self, lang: str, text: str, audio_path=None):
+        """Show transcription, audio playback, and export buttons."""
         st.success(f"Detected language: {lang if lang else 'unknown'}")
         st.text_area("Microphone Transcription", value=text, height=180)
+        if audio_path:
+            st.audio(str(audio_path), format="audio/wav")
         self.persist_last_transcript(text)
         file_path = self.write_transcription_to_file(text)
         self.download_button(text, file_path)
+        export_buttons(text)
 
     def persist_last_transcript(self, text: str):
+        """Store last transcript in session state."""
         st.session_state["last_mic_transcript"] = text
 
     def write_transcription_to_file(self, text: str):
+        """Write transcript to disk for download."""
         out_dir = Path("transcriptions")
         out_dir.mkdir(exist_ok=True)
         file_path = out_dir / "microphone_transcription.txt"
@@ -97,9 +114,11 @@ class MicrophoneTranscribeUI:
         return file_path
 
     def download_button(self, text: str, file_path: Path):
+        """Show download button for transcript text."""
         download_button(text, file_path)
 
     def display(self):
+        """Entry point for microphone tab UI."""
         st.subheader("Microphone Speech Recognition")
         self.display_single_shot()
-        st.caption("Future: add streaming with partial transcripts via WebRTC.")
+        # ...existing code...

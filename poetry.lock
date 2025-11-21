@@ -612,6 +612,17 @@ files = [
 ]
 
 [[package]]
+name = "fpdf"
+version = "1.7.2"
+description = "Simple PDF generation for Python"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "fpdf-1.7.2.tar.gz", hash = "sha256:125840783289e7d12552b1e86ab692c37322e7a65b96a99e0ea86cca041b6779"},
+]
+
+[[package]]
 name = "fsspec"
 version = "2025.10.0"
 description = "File-system specification"
@@ -3366,4 +3377,4 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.15"
-content-hash = "b83b48bb87d4be90d667d04be9f7e47c3f513d9c45ce905c82dd100433b60870"
+content-hash = "e96031be233830d5e6a1fb1c4e42fba30f02c0b3f416b0e55c94a62366086730"

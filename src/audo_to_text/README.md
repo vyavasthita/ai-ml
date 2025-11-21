@@ -5,6 +5,7 @@
 - openai-whisper
 - streamlit-webrtc
 - soundfile
+- fpdf
 
 
 ### How to run
