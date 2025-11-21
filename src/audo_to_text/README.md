@@ -15,4 +15,4 @@
 
 2. Streamlit UI
     - Go to root dir gen-ai-gl
-    - PYTHONPATH=$(pwd) poetry run streamlit run src/audo_to_text/ui/web.py
+    - PYTHONPATH=$(pwd) poetry run streamlit run src/audo_to_text/ui/main_ui.py
