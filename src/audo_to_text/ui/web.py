@@ -94,13 +94,19 @@ class TranscribeUI:
 		st.caption("v0 minimal stub")
 
 	def run(self):
-		"""Main UI runner."""
-		uploaded = self.file_uploader()
-		transcribe_btn = self.transcribe_button()
-		
-		if transcribe_btn:
-			self.transcribe_file(uploaded)
-			
+		"""Main UI runner with horizontal layout for audio and transcription."""
+		col1, col2 = st.columns(2)
+		with col1:
+			uploaded = self.file_uploader()
+			transcribe_btn = self.transcribe_button()
+		with col2:
+			if transcribe_btn:
+				tmp_path = self.save_uploaded_file(uploaded)
+				try:
+					lang, text = self.run_transcription(tmp_path)
+					self.display_transcription(lang, text)
+				finally:
+					self.cleanup_temp_file(tmp_path)
 		self.microphone_placeholder()
 		self.footer()
 
