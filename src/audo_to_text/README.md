@@ -6,5 +6,11 @@
 
 
 ### How to run
-- Go to root dir gen-ai-gl
-- Run poetry run python -m src.audo_to_text.cli.cli --audio ./src/audo_to_text/sample_files/first.wav
+
+1. CLI
+    - Go to root dir gen-ai-gl
+    - Run poetry run python -m src.audo_to_text.cli.cli --audio ./src/audo_to_text/sample_files/first.wav
+
+2. Streamlit UI
+    - Go to root dir gen-ai-gl
+    - PYTHONPATH=$(pwd) poetry run streamlit run src/audo_to_text/ui/web.py
