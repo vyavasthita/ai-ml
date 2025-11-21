@@ -3,6 +3,8 @@
 
 ## Python Packages
 - openai-whisper
+- streamlit-webrtc
+- soundfile
 
 
 ### How to run
