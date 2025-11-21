@@ -3,6 +3,7 @@ from pathlib import Path
 import streamlit as st
 from src.audo_to_text.services.model_loader import ModelLoader
 from src.audo_to_text.services.audio_transcriber import AudioFileTranscriber
+from src.audo_to_text.ui.download_ui import download_button
 
 class AudioUploadHandler:
     """Handles file save, transcription, and download logic for audio uploads."""
@@ -35,13 +36,7 @@ class AudioUploadHandler:
         return file_path
 
     def download_button(self, text: str, file_path: Path):
-        st.download_button(
-            label="Download Transcription",
-            data=text,
-            file_name=file_path.name,
-            mime="text/plain",
-            help="Save the transcription locally"
-        )
+        download_button(text, file_path)
 
 
 class AudioUploadTranscribeUI:
