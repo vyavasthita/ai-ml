@@ -33,7 +33,7 @@ class ImageUploadTranscribeUI:
 
     def _show_image(self, img):
         if img:
-            st.image(img, caption="Selected Image", use_container_width=True)
+            st.image(img, caption="Selected Image", width='stretch')
 
     def _caption_and_save(self, img):
         if not (img and self.caption_service):
