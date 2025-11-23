@@ -8,31 +8,39 @@ class LearningAssistantUI:
             st.session_state["la_selected_language"] = None
 
     def display(self):
-        st.markdown("""
+        st.markdown(
+            """
             <div style='text-align: center;'>
                 <h3 style='display: inline-block; margin-bottom: 0px;'>Language Learning Assistant</h3><br>
                 <hr style='border:1px solid #DDD; width: 340px; margin: 8px auto 20px auto;'>
             </div>
-        """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True
+        )
         # --- Chat Bubble CSS ---
-        st.markdown("""
-        <style>
-        .chat-box { display: flex; flex-direction: column; gap: 12px; padding-top: 10px; }
-        .user-bubble { background-color: #0084ff; color: white; padding: 12px 16px; border-radius: 18px; max-width: 60%; align-self: flex-end; font-size: 16px; }
-        .ai-bubble { background-color: #e5e5ea; color: black; padding: 12px 16px; border-radius: 18px; max-width: 60%; align-self: flex-start; font-size: 16px; }
-        </style>
-        """, unsafe_allow_html=True)
-        self.sidebar_language_settings()
+        st.markdown(
+            """
+            <style>
+            .chat-box { display: flex; flex-direction: column; gap: 12px; padding-top: 10px; }
+            .user-bubble { background-color: #0084ff; color: white; padding: 12px 16px; border-radius: 18px; max-width: 60%; align-self: flex-end; font-size: 16px; }
+            .ai-bubble { background-color: #e5e5ea; color: black; padding: 12px 16px; border-radius: 18px; max-width: 60%; align-self: flex-start; font-size: 16px; }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+        self.language_settings_panel()
         self.chat_bubble_ui()
 
-    def sidebar_language_settings(self):
-        st.sidebar.title("🌐 Language Settings")
+    def language_settings_panel(self):
+        st.markdown("<div style='background:#f7f7f7; border-radius:8px; padding:16px; margin-bottom:16px;'>", unsafe_allow_html=True)
+        st.markdown("<h4 style='margin-bottom:8px;'>🌐 Language Settings</h4>", unsafe_allow_html=True)
         languages = ["Hindi", "Spanish", "French", "Mandarin", "German", "English", "Japanese", "Korean"]
-        selected = st.sidebar.selectbox("Select Language", languages, key="la_language_select")
-        level = st.sidebar.selectbox("Proficiency Level", ["Beginner", "Intermediate", "Advanced"], key="la_level_select")
-        st.sidebar.info(f"🌍 You are learning **{selected}** at **{level}** level.")
+        selected = st.selectbox("Select Language", languages, key="la_language_select")
+        level = st.selectbox("Proficiency Level", ["Beginner", "Intermediate", "Advanced"], key="la_level_select")
+        st.info(f"🌍 You are learning **{selected}** at **{level}** level.")
         st.session_state["la_selected_language"] = selected
         st.session_state["la_selected_level"] = level
+        st.markdown("</div>", unsafe_allow_html=True)
 
     def chat_bubble_ui(self):
         if "la_messages" not in st.session_state:
