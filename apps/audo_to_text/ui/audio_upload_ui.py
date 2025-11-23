@@ -106,7 +106,6 @@ class AudioUploadTranscribeUI:
 
     def render_transcription(self, lang, text, audio_path=None):
         """Show transcription, audio playback, and export buttons."""
-        self.save_and_offer_download(text)
         self.transcription_ui.render(lang, text, audio_path, transcription_label="Transcription")
 
     def save_and_offer_download(self, text):
