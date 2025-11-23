@@ -20,6 +20,4 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry]
-packages = [
-  { include = "audo_to_text" }
-]
+package-mode = false

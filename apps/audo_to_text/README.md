@@ -15,5 +15,5 @@
     - Run poetry run python -m src.audo_to_text.cli.cli --audio ./src/audo_to_text/sample_files/first.wav
 
 2. Streamlit UI
-    - Go to root dir gen-ai-gl
-    - streamlit run src/audo_to_text/ui/main_ui.py --server.port 8502 --server.headless true
+    - Go to root dir gen-ai-gl/apps/audo_to_text
+    - poetry run streamlit run main.py --server.port 8502 --server.headless true
