@@ -12,8 +12,12 @@
 
 1. CLI
     - Go to root dir gen-ai-gl
-    - Run poetry run python -m src.audo_to_text.cli.cli --audio ./src/audo_to_text/sample_files/first.wav
+    - Run following command
+        - poetry run python -m cli.cli --audio sample_files/first.wav
 
 2. Streamlit UI
-    - Go to root dir gen-ai-gl/apps/audo_to_text
-    - poetry run streamlit run main.py --server.port 8502 --server.headless true
+    - Export Following environment variables
+        - export STREAMLIT_SERVER_PORT=8502
+        - export STREAMLIT_SERVER_HEADLESS=true
+    - Go to dir apps/audo_to_text
+    - poetry run streamlit run main.py
