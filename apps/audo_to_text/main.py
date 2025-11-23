@@ -3,6 +3,7 @@ Main UI entry point for audio/speech transcription app.
 Provides tabbed interface for file upload and microphone input.
 """
 import streamlit as st
+import toml
 from ui.audio_upload_ui import AudioUploadTranscribeUI
 from ui.microphone_ui import MicrophoneTranscribeUI
 from utils.file_helper import FileHelper
@@ -15,6 +16,18 @@ def setup_page():
     st.title("Minimal Audio Transcription UI")
     st.caption("Upload audio or record speech for transcription.")
 
+
+def show_author_and_version():
+    """Show author and version in bold at the top of the main UI."""
+    import toml
+    try:
+        pyproject = toml.load("pyproject.toml")
+        version = pyproject["project"]["version"]
+    except Exception:
+        version = "?"
+    st.markdown("**Author:** Dilip Sharma")
+    st.markdown(f"**Version:** {version}")
+    
 def setup_file_helper():
     """Initialize FileHelper once at app startup."""
     if "file_helper" not in st.session_state:
@@ -27,6 +40,7 @@ def setup_whisper_model():
         st.session_state["whisper_model"] = ModelLoader("tiny").load()
 
 setup_page()
+show_author_and_version()
 setup_file_helper()
 setup_whisper_model()
 
