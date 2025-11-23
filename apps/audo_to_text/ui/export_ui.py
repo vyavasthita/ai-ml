@@ -36,11 +36,19 @@ class ExportUI:
     # Removed SRT, text, and dropdown export logic
 
     def generate_pdf_bytes(self) -> bytes:
-        """Generate PDF bytes from transcription text (robust, with wrapping and encoding)."""
+        """Always generate a non-empty PDF using built-in font and ASCII fallback."""
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-        for line in self.get_pdf_lines():
+        lines = self.get_pdf_lines()
+        # Fallback: replace non-ASCII with '?'
+        safe_lines = []
+        for line in lines:
+            try:
+                safe_lines.append(line.encode("ascii", "replace").decode("ascii"))
+            except Exception:
+                safe_lines.append("(No transcription)")
+        for line in safe_lines:
             pdf.multi_cell(0, 10, txt=line)
         pdf_bytes = pdf.output(dest="S").encode("latin-1")
         return pdf_bytes
