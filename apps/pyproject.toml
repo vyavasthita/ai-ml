@@ -1,6 +1,6 @@
 [project]
 name = "genai"
-version = "0.1.1"
+version = "0.2.0"
 description = "GenAI Learning"
 authors = [
     {name = "Dilip Sharma",email = "diliplakshya@gmail.com"}
@@ -10,7 +10,8 @@ requires-python = "3.12.12"
 dependencies = [
     "streamlit (>=1.51.0,<2.0.0)",
     "openai-whisper (>=20250625,<20250626)",
-    "fpdf (>=1.7.2,<2.0.0)"
+    "fpdf (>=1.7.2,<2.0.0)",
+    "transformers (>=4.57.1,<5.0.0)"
 ]
 
 
