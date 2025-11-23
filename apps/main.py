@@ -2,6 +2,7 @@ import streamlit as st
 from utils.file_helper import FileHelper
 from utils.ui_helper import show_author_and_version
 from audio_to_text.start import main as audio_to_text_main
+from image_to_text.start import main as image_to_text_main
 
 
 def setup_main_page():
@@ -18,11 +19,24 @@ def setup_file_helper():
     if "file_helper" not in st.session_state:
         st.session_state["file_helper"] = FileHelper("audio_to_text", resource_root="/tmp/resources")
 
-def main():
+def init():
+    """
+    Initialize main app components.
+    """
     setup_main_page()
     show_author_and_version()
     setup_file_helper()
-    audio_to_text_main()
+
+def main():
+    init()
+
+    # Tabbed UI for multiple apps
+    tab_audio, tab_image = st.tabs(["Audio to Text", "Image to Text"])
+    
+    with tab_audio:
+        audio_to_text_main()
+    with tab_image:
+        image_to_text_main()
 
 
 if __name__ == "__main__":

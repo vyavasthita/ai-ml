@@ -12,7 +12,7 @@ def show_author_and_version():
         version = pyproject["project"]["version"]
     except Exception:
         # Fallback to default version if file missing or unreadable
-        version = "0.1.0"
+        version = "0.2.0"
 
     st.markdown("**Author:** Dilip Sharma")
     st.markdown(f"**Version:** {version}")
