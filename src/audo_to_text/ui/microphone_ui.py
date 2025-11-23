@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 import streamlit as st
-from .export_ui import export_buttons, download_button
+from src.audo_to_text.ui.common_ui import TranscriptionResultUI
 from src.audo_to_text.services.model_loader import ModelLoader
 from src.audo_to_text.services.audio_transcriber import AudioFileTranscriber
 from src.audo_to_text.services.speech_transcriber import SpeechTranscriber
@@ -23,6 +23,7 @@ class MicrophoneTranscribeUI:
             st.session_state["speech_transcriber"] = SpeechTranscriber(model_name="tiny")
         if "whisper_model" not in st.session_state:
             st.session_state["whisper_model"] = ModelLoader("tiny").load()
+        self.transcription_ui = TranscriptionResultUI()
 
     def audio_recorder(self):
         """Show microphone audio recorder widget."""
@@ -68,14 +69,15 @@ class MicrophoneTranscribeUI:
         if not clip:
             st.info("Press 'Record speech' to capture audio.")
             return
-        col_info, col_btn = st.columns([1, 1])
-        with col_btn:
+        # Place Transcribe button and audio playback in the same column for alignment
+        col = st.columns(1)[0]
+        with col:
             if self.transcribe_action():
                 self.process_clip(clip)
 
     def transcribe_action(self) -> bool:
         """Show transcribe button widget."""
-        return st.button("Transcribe Recording", key="mic_transcribe_btn")
+        return st.button("Transcribe", key="mic_transcribe_btn")
 
     def process_clip(self, clip):
         """Handle clip saving, transcription, and render results."""
@@ -92,14 +94,9 @@ class MicrophoneTranscribeUI:
 
     def render_transcription(self, lang: str, text: str, audio_path=None):
         """Show transcription, audio playback, and export buttons."""
-        st.success(f"Detected language: {lang if lang else 'unknown'}")
-        st.text_area("Microphone Transcription", value=text, height=180)
-        if audio_path:
-            st.audio(str(audio_path), format="audio/wav")
         self.persist_last_transcript(text)
         file_path = self.write_transcription_to_file(text)
-        self.download_button(text, file_path)
-        export_buttons(text)
+        self.transcription_ui.render(lang, text, audio_path, transcription_label="Microphone Transcription")
 
     def persist_last_transcript(self, text: str):
         """Store last transcript in session state."""
@@ -113,12 +110,7 @@ class MicrophoneTranscribeUI:
         file_path.write_text(text, encoding="utf-8")
         return file_path
 
-    def download_button(self, text: str, file_path: Path):
-        """Show download button for transcript text."""
-        download_button(text, file_path)
-
     def display(self):
         """Entry point for microphone tab UI."""
         st.subheader("Microphone Speech Recognition")
         self.display_single_shot()
-        # ...existing code...

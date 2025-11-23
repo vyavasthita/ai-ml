@@ -1,7 +1,8 @@
 import tempfile
 from pathlib import Path
+import json
 import streamlit as st
-from .export_ui import export_buttons, download_button
+from src.audo_to_text.ui.common_ui import TranscriptionResultUI
 from src.audo_to_text.services.model_loader import ModelLoader
 from src.audo_to_text.services.audio_transcriber import AudioFileTranscriber
 
@@ -34,6 +35,7 @@ class AudioUploadHandler:
         model = st.session_state["whisper_model"]
         transcriber = AudioFileTranscriber(audio_path=tmp_path, model=model)
         lang, text = transcriber.transcribe()
+
         return lang, text
 
     def persist_last_transcript(self, text: str):
@@ -50,7 +52,7 @@ class AudioUploadHandler:
 
     def download_button(self, text: str, file_path: Path):
         """Show download button for transcript text."""
-        download_button(text, file_path)
+        pass
 
 
 class AudioUploadTranscribeUI:
@@ -64,12 +66,12 @@ class AudioUploadTranscribeUI:
     def __init__(self):
         self.handler = AudioUploadHandler()
         self.language_map = self.load_language_map()
+        self.transcription_ui = TranscriptionResultUI(lang_map=self.language_map)
 
     @staticmethod
     def load_language_map():
         """Load language code map from config file."""
-        import json
-        from pathlib import Path
+
         config_path = Path(__file__).parent.parent / "config/language_map.json"
         try:
             with open(config_path, "r", encoding="utf-8") as f:
@@ -88,6 +90,7 @@ class AudioUploadTranscribeUI:
     def display(self):
         """Main display logic for upload tab."""
         uploaded = self.file_uploader()
+        
         if self.transcribe_button() and uploaded:
             self.process_uploaded_file(uploaded)
         elif uploaded is None:
@@ -105,13 +108,8 @@ class AudioUploadTranscribeUI:
 
     def render_transcription(self, lang, text, audio_path=None):
         """Show transcription, audio playback, and export buttons."""
-        lang_full = self.language_name(lang)
-        st.success(f"Detected language: {lang_full}")
-        st.text_area("Transcription", value=text, height=180)
-        if audio_path:
-            st.audio(str(audio_path), format="audio/wav")
         self.save_and_offer_download(text)
-        export_buttons(text)
+        self.transcription_ui.render(lang, text, audio_path, transcription_label="Transcription")
 
     def save_and_offer_download(self, text):
         """Persist transcript and show download button."""
